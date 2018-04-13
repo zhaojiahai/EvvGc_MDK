@@ -15,7 +15,7 @@
 #include "hw_config.h"
 #include "stm32f10x_tim.h"
 
-#define SETTLE_PAUSE 13
+#define SETTLE_PAUSE 10
 
 static volatile int WatchDogCounter;
 static volatile int gotIMU = 0;
@@ -35,6 +35,7 @@ void Periph_clock_enable(void)
     RCC_AHBPeriphClockCmd(RCC_AHBPeriph_DMA1,  ENABLE);
 }
 
+//@HackOS: 软件看门狗
 void WatchDog(void)
 {
     if (WatchDogCounter++ > 1000)
@@ -58,6 +59,7 @@ void setup(void)
     InitSysTick();
 
     Periph_clock_enable();
+	//@HackOS: GPIO配置
     GPIO_Config();
 
     __enable_irq();
@@ -66,13 +68,14 @@ void setup(void)
     print("\r\n\r\nEvvGC firmware starting up...\r\n");
 
     print("init motor PWM...\r\n");
+	//@HackOS: PWM初始化
     PWMConfig();
 
     for (int i = 0; i < 20; i++)
     {
         LEDtoggle();
         DEBUG_LEDtoggle();
-        Delay_ms(100); //short blink
+        Delay_ms(50); //short blink
     }
 
     LEDoff();
@@ -94,10 +97,7 @@ void setup(void)
         print("\r\n\r\nEvvGC firmware starting up, serial active...\r\n");
     }
 
-#ifdef __VERSION__
-    print("gcc version " __VERSION__ "\r\n");
     print("EvvGC firmware V%s, build date " __DATE__ " "__TIME__" \r\n", __EV_VERSION);
-#endif
 
     if ((RCC->CR & RCC_CR_HSERDY) != RESET)
     {
@@ -139,7 +139,7 @@ void setup(void)
             Delay_ms(100);
         }
 
-        print("calibrating MPU6050 at %ums...\r\n", millis());
+        print("calibrating MPU6050 at %u ms...\r\n", millis());
         MPU6050_Gyro_calibration();
 
         print("Init Orientation\n\r");
@@ -217,7 +217,8 @@ int main(void)
         idleLoops++;
         unsigned int currentTime = micros();
         unsigned int timePassed = currentTime - lastTime;
-
+		
+		
         if (timePassed >= 2000)
         {
             idlePerf = idleLoops * 100.0 * 1000 / timePassed / idleMax; // perf in percent
@@ -236,6 +237,7 @@ int main(void)
             WatchDogCounter = 0;
             CommHandler();
             lastTime = currentTime;
+			
         }
     }
 }

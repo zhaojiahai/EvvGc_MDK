@@ -12,10 +12,13 @@
 #include "usart.h"
 #include "usb.h"
 
+//@HackOS: 通信初始化
 void ComInit(void)
 {
+	//@HackOS: COM4初始化
     Usart4Init();
-    DEBUG_PutString("setup USB...\r\n");
+    //@HackOS: USB初始化
+	DEBUG_PutString("setup USB...\r\n");
     setupUSB();
     DEBUG_PutString("setup USB done\r\n");
 }

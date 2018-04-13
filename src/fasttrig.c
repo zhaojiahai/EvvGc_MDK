@@ -7,6 +7,7 @@
 #include <math.h>
 #include "fasttrig.h"
 #include "utils.h"
+#include "comio.h"
 
 //@HackOS: M_TWOPI
 #define M_TWOPI 6.2831853071796f

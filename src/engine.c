@@ -22,7 +22,7 @@
 
 int debugPrint   = 0;
 int debugPerf    = 0;
-int debugSense   = 1;
+int debugSense   = 0;
 int debugCnt     = 0;
 int debugRC      = 0;
 int debugOrient  = 0;
@@ -312,7 +312,7 @@ void engineProcess(float dt)
 
         if (debugAutoPan)
         {
-            print("Pitch_output:%3.2f | Roll_output:%3.2f | Yaw_output:%3.2f | centerpoint:%4.4f\n\r",
+            print("Pitch_output:%3.2f | Roll_output:%3.2f | Yaw_output:%3.2f | centerpoint:%4.4f\r\n",
                   Output[PITCH],
                   Output[ROLL],
                   Output[YAW],

@@ -27,8 +27,8 @@ unsigned int micros(void)
     {
         timeMs = sysTickMillis;
         cycle = SysTick->VAL;
-		__nop();
-		__nop();
+//		__nop();
+//		__nop();
 		//@HackOS: wait
 //        asm volatile("nop");
 //        asm volatile("nop");

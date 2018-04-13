@@ -60,6 +60,7 @@ void CommHandler(void) //UART4 Interrupt handler implementation
                 {
                     uint8_t data = configData[i];
                     PutChar(data);
+					PutChar(' ');
                 }
 
                 break;

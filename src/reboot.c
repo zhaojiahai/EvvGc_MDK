@@ -8,6 +8,7 @@
 #include "reboot.h"
 #include "stm32f10x.h"
 #include "core_cm3.h"
+#include "comio.h"
 #define AIRCR_RESET         0x05FA0000
 #define AIRCR_RESET_REQ     (AIRCR_RESET | 0x04);
 
@@ -73,6 +74,7 @@ void bootloader(void)
     if ((uint32_t)&__Vectors == 0x08000000)
     {
         // there is no bootloader at the bottom of flash memory
+		print("\r\nNo Bootloader\r\n");
         return;
     }
 

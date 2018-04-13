@@ -33,7 +33,7 @@
 
 */
 
-
+//@HackOS: 死区时间
 int timer_1_8_deadtime_register = 200; //this is not just a delay value, check CPU reference manual for TIMx_BDTR DTG bit 0-7
 int timer_4_5_deadtime_delay = 80; // in 18MHz ticks
 
@@ -305,6 +305,7 @@ static void Timer_Channel_Config(TIM_TypeDef *tim, TIM_OCInitTypeDef *OCInitStru
     TIM_OC3PreloadConfig(tim, TIM_OCPreload_Enable);
 }
 
+//@HackOS: TIM1 8 高级定时器配置,带死区的互补PWM
 static void Timer_PWM_Advanced_Config(TIM_TypeDef *tim)
 {
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseInitStructure;
@@ -314,7 +315,7 @@ static void Timer_PWM_Advanced_Config(TIM_TypeDef *tim)
     //Time Base configuration
     TIM_TimeBaseInitStructure.TIM_Prescaler = 3; // 18MHz
     TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
-    TIM_TimeBaseInitStructure.TIM_Period = PWM_PERIODE;
+    TIM_TimeBaseInitStructure.TIM_Period = PWM_PERIODE;			//@HackOS: 重载值1000 18KHZ
     TIM_TimeBaseInitStructure.TIM_ClockDivision = 0;
     TIM_TimeBaseInitStructure.TIM_RepetitionCounter = 0;
     TIM_TimeBaseInit(tim, &TIM_TimeBaseInitStructure);
@@ -331,17 +332,18 @@ static void Timer_PWM_Advanced_Config(TIM_TypeDef *tim)
 
     //Configuration in PWM mode
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1 ;
-    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;
-    TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;
+    TIM_OCInitStructure.TIM_OutputState = TIM_OutputState_Enable;		//@HackOS: 输出使能
+    TIM_OCInitStructure.TIM_OutputNState = TIM_OutputNState_Enable;		//@HackOS: 互补输出使能
     TIM_OCInitStructure.TIM_Pulse = 0;
     TIM_OCInitStructure.TIM_OCPolarity = TIM_OCPolarity_High;
-    TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;
+    TIM_OCInitStructure.TIM_OCNPolarity = TIM_OCNPolarity_High;			//@HackOS: 互补输出有效极性
     TIM_OCInitStructure.TIM_OCIdleState = TIM_OCIdleState_Set;
     TIM_OCInitStructure.TIM_OCNIdleState = TIM_OCIdleState_Reset;
 
     Timer_Channel_Config(tim, &TIM_OCInitStructure);
 }
 
+//@HackOS: 通用定时器TIM4 5 配置 6mhz
 static void Timer_PWM_General_Config(TIM_TypeDef *tim, int polarity)
 {
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseInitStructure;
@@ -350,7 +352,7 @@ static void Timer_PWM_General_Config(TIM_TypeDef *tim, int polarity)
     TIM_TimeBaseInitStructure.TIM_Prescaler = 3; // 18MHz
     TIM_TimeBaseInitStructure.TIM_CounterMode = TIM_CounterMode_Up;
     TIM_TimeBaseInitStructure.TIM_Period = PWM_PERIODE;
-    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV4;
+    TIM_TimeBaseInitStructure.TIM_ClockDivision = TIM_CKD_DIV4;		//@HackOS: 四分频
     TIM_TimeBaseInit(tim, &TIM_TimeBaseInitStructure);
 
     TIM_OCInitStructure.TIM_OCMode = TIM_OCMode_PWM1 ;
@@ -389,25 +391,32 @@ static void SetupPWMIrq(uint8_t irq)
 
 #define BB_PERIPH_ADDR(addr, bit) ((vu32*)(PERIPH_BB_BASE + ((void*)(addr)-(void*)PERIPH_BASE) * 32 + (bit) * 4))
 
+//@HackOS: PWM初始化
 void PWMConfig(void)
 {
+	
     MaxCntClear();
 
+	//@HackOS: TIM1 8 高级定时器配置,带死区的互补PWM
     //rewrite that thing;
     Timer_PWM_Advanced_Config(TIM1);
     Timer_PWM_Advanced_Config(TIM8);
 
-    Timer_PWM_General_Config(TIM5, TIM_OCPolarity_High);
-    Timer_PWM_General_Config(TIM4, TIM_OCPolarity_Low);
+	//@HackOS: TIM4 5通用定时器配置
+    Timer_PWM_General_Config(TIM5, TIM_OCPolarity_High);		//@HackOS: YAW上臂,有效极性高
+    Timer_PWM_General_Config(TIM4, TIM_OCPolarity_Low);			//@HackOS: YAW下臂,有效极性低
 
+	//@HackOS: 初始化计数值,错开,为了防止中断冲突?
     TIM4->CNT = timer_4_5_deadtime_delay;
     TIM1->CNT = timer_4_5_deadtime_delay + 3 + PWM_PERIODE / 3;
     TIM8->CNT = timer_4_5_deadtime_delay + 5 + PWM_PERIODE * 2 / 3;
 
+	//@HackOS: 优先级设置,最高优先级
     SetupPWMIrq(TIM5_IRQn);    // yaw
     SetupPWMIrq(TIM1_UP_IRQn); // pitch
     SetupPWMIrq(TIM8_UP_IRQn); // roll
 
+	//@HackOS: 先禁用全部中断
     __disable_irq();
     {
         /* code below is faster version of
@@ -423,15 +432,18 @@ void PWMConfig(void)
 //        *tim4Enable = 1;
 //        *tim1Enable = 1;
 //        *tim8Enable = 1;
+		//@HackOS: 使能定时器
 		TIM_Cmd(TIM5, ENABLE);
 		TIM_Cmd(TIM4, ENABLE);
 		TIM_Cmd(TIM1, ENABLE);
         TIM_Cmd(TIM8, ENABLE);
     }
 
+	//@HackOS: 使能定时器PWM输出
     TIM_CtrlPWMOutputs(TIM5, ENABLE);
     TIM_CtrlPWMOutputs(TIM4, ENABLE);
     TIM_CtrlPWMOutputs(TIM1, ENABLE);
     TIM_CtrlPWMOutputs(TIM8, ENABLE);
-    __enable_irq();
+    //@HackOS: 全部设置完后再启用所有中断
+	__enable_irq();
 }
