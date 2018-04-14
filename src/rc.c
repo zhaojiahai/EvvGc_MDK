@@ -206,7 +206,7 @@ void EXTI4_IRQHandler(void) //EXTernal interrupt routine PB4-Yaw
   Get value from RC input (0-1000) and converts it to step
   Value of step is is stored as a 1x3 array
 */
-
+//@HackOS: 将遥控值(0-1000)转为步进值
 void Get_RC_Step(float *Step, float *RCSmooth)
 {
 
@@ -217,8 +217,10 @@ void Get_RC_Step(float *Step, float *RCSmooth)
     // Pitch
     if (aux3 != 0) //check there is a rc input
     {
+    	//@HackOS: 换算至-500--500，并滤波
         RCSmooth[PITCH] = ((RCSmooth[PITCH] * 199) + (aux3 - RC_CENTER_VAL)) / 200;
 
+		//@HackOS: 大于死区
         if (RCSmooth[PITCH] > DEAD_ZONE || RCSmooth[PITCH] < -DEAD_ZONE)
         {
             Step[PITCH] = RCSmooth[PITCH] * RC2STEP;
