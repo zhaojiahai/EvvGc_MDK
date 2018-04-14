@@ -205,9 +205,11 @@ void engineProcess(float dt)
     DEBUG_LEDoff();
 
     StopWatchInit(&sw);
+	//@HackOS: 加速度数据获取
     MPU6050_ACC_get(AccData); // Getting Accelerometer data
     unsigned long tAccGet = StopWatchLap(&sw);
 
+	//@HackOS: 陀螺仪数据获取
     MPU6050_Gyro_get(GyroData); // Getting Gyroscope data
     unsigned long tGyroGet = StopWatchLap(&sw);
 
