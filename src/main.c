@@ -99,6 +99,7 @@ void setup(void)
 
     print("EvvGC firmware V%s, build date " __DATE__ " "__TIME__" \r\n", __EV_VERSION);
 
+	//@HackOS: 外部高速时钟
     if ((RCC->CR & RCC_CR_HSERDY) != RESET)
     {
         print("running on external HSE clock, clock rate is %dMHz\r\n", SystemCoreClock / 1000000);
@@ -108,11 +109,13 @@ void setup(void)
         print("ERROR: running on internal HSI clock, clock rate is %dMHz\r\n", SystemCoreClock / 1000000);
     }
 
+	//@HackOS: ADC初始化 PC3
     print("init ADC...\r\n");
     ADC_Config();
 
     print("init MPU6050...\r\n");
 
+	//@HackOS: MPU6050初始化
     int imuRetries = 10;
     while ((imuRetries > 0) && MPU6050_Init())
     {
@@ -126,6 +129,7 @@ void setup(void)
         print("\r\nWARNING: MPU6050 init failed, entering configration mode only...\r\n\r\n");
     }
 
+	//@HackOS: 参数载入
     print("loading config...\r\n");
     configLoad();
 

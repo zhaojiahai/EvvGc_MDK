@@ -11,6 +11,13 @@
 #include "eeprom.h"
 #include "comio.h"
 
+//@HackOS: 参数含义
+//0 1 2 ===>P
+//3 4 5 ===>D
+//6 7 8 ===>POWER
+//9     ===>启用RC遥控 '1'
+//10    ===>启用YAW的autopan '0'
+//11    ===>roll偏移 0-->-10  100-->0  200-->10deg
 char configData[CONFIGDATASIZE] = {40, 85, 60, 30, 55, 40, 35, 55, 60, '0', '0', 64};
 
 void configLoad(void)
