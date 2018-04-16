@@ -20,6 +20,7 @@
 //11    ===>rollÆ«ÒÆ 0-->-10  100-->0  200-->10deg
 char configData[CONFIGDATASIZE] = {40, 85, 60, 30, 55, 40, 35, 55, 60, '0', '0', 64};
 
+//@HackOS: ¶ÁÈ¡eeprom²ÎÊý
 void configLoad(void)
 {
     //reads configuration from eeprom
