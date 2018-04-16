@@ -143,18 +143,23 @@ void setup(void)
             Delay_ms(100);
         }
 
+		//@HackOS: 陀螺仪校准
         print("calibrating MPU6050 at %u ms...\r\n", millis());
         MPU6050_Gyro_calibration();
-
+		
+		//@HackOS: 初始化角度
         print("Init Orientation\n\r");
         Init_Orientation();
     }
 
+	//@HackOS: 接收机输入
     print("init RC...\r\n");
     RC_Config();
 
+	//@HackOS: 初始化正弦函数数组
     InitSinArray();
 
+	//@HackOS: 清除输入缓冲区
     int pendingCharacters = ComFlushInput();
 
     if (pendingCharacters > 0)
@@ -174,6 +179,7 @@ void setup(void)
 
     print("entering main loop...\r\n");
 
+	//@HackOS: 设置软件看门狗
     SysTickAttachCallback(WatchDog);
 }
 
@@ -216,13 +222,14 @@ int main(void)
     int idleLoops = 0;
     unsigned int lastTime = micros();
 
+	//@HackOS: 主循环
     while (1)
     {
         idleLoops++;
         unsigned int currentTime = micros();
         unsigned int timePassed = currentTime - lastTime;
 		
-		
+		//@HackOS: 500HZ
         if (timePassed >= 2000)
         {
             idlePerf = idleLoops * 100.0 * 1000 / timePassed / idleMax; // perf in percent
@@ -237,9 +244,10 @@ int main(void)
                 PWMOff();
                 Blink();
             }
-
+			//@HackOS: 喂狗
             WatchDogCounter = 0;
-            CommHandler();
+            //@HackOS: 通信线程
+			CommHandler();
             lastTime = currentTime;
 			
         }

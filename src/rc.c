@@ -18,6 +18,7 @@ void Timer3_Config(void) // RC control timer config
     TIM_Cmd(TIM3, ENABLE);
 }
 
+//@HackOS: 接收机输入配置
 void RC_Config(void)
 {
     GPIO_InitTypeDef    GPIO_InitStructure;
@@ -41,15 +42,17 @@ void RC_Config(void)
     GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2; 					// PC2-Yaw
     GPIO_Init(GPIOC, &GPIO_InitStructure);
 
+	//@HackOS: 设置外部中断源
     GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource3);
     GPIO_EXTILineConfig(GPIO_PortSourceGPIOB, GPIO_PinSource4);
     GPIO_EXTILineConfig(GPIO_PortSourceGPIOC, GPIO_PinSource2);
 
     EXTI_InitTypeDef EXTI_InitStructure;
 
+	//@HackOS: 设置外部中断线
     EXTI_InitStructure.EXTI_Line    = EXTI_Line3 | EXTI_Line4 | EXTI_Line2;
     EXTI_InitStructure.EXTI_Mode    = EXTI_Mode_Interrupt;
-    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;
+    EXTI_InitStructure.EXTI_Trigger = EXTI_Trigger_Rising_Falling;		//@HackOS: 上升下降均中断
     EXTI_InitStructure.EXTI_LineCmd = ENABLE;
     EXTI_Init(&EXTI_InitStructure);
 
@@ -74,6 +77,7 @@ int GetAUX3(void)
     return rc3;
 }
 
+//@HackOS: 接收机外部中断
 void EXTI3_IRQHandler(void) //EXTernal interrupt routine PB3-Pitch
 {
     static unsigned short rc3a = 0, rc3b = 0;

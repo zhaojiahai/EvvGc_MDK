@@ -114,6 +114,7 @@ float Limit_Pitch(float step, float pitch)
     return step;
 }
 
+//@HackOS: ≥ı ºªØΩ«∂»
 void Init_Orientation()
 {
 
