@@ -138,6 +138,7 @@ void Init_Orientation()
     CameraOrient[YAW]   = 0.0f;
 }
 
+//@HackOS: 获取姿态
 void Get_Orientation(float *SmoothAcc, float *Orient, float *AccData, float *GyroData, float dt)
 {
     float AccAngle[EULAR];
@@ -213,13 +214,16 @@ void engineProcess(float dt)
     MPU6050_Gyro_get(GyroData); // Getting Gyroscope data
     unsigned long tGyroGet = StopWatchLap(&sw);
 
+	//@HackOS: 获取姿态
     Get_Orientation(AccAngleSmooth, CameraOrient, AccData, GyroData, dt);
     unsigned long tAccAngle = StopWatchLap(&sw);
 
+	//@HackOS: 启用RC控制
     // if we enable RC control
     if (configData[9] == '1')
     {
         // Get the RX values and Averages
+        //@HackOS: 得到三轴需移动的步数
         Get_RC_Step(Step, RCSmooth); // Get RC movement on all three AXIS
         Step[PITCH] = Limit_Pitch(Step[PITCH], CameraOrient[PITCH]); // limit pitch to defined limits in header
     }
