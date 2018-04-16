@@ -37,6 +37,7 @@ void configLoad(void)
     }
 }
 
+//@HackOS: 参数保存
 void configSave(void)
 {
     uint8_t i;
@@ -60,6 +61,7 @@ void configSave(void)
     LEDoff();
 }
 
+//@HackOS: 打印参数
 void printConfig(void)
 {
     print("\r\nconfig data: ");
